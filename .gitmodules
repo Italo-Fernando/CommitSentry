@@ -1,0 +1,3 @@
+[submodule "src/external/pyszz_v2"]
+	path = src/external/pyszz_v2
+	url = https://github.com/grosa1/pyszz_v2.git

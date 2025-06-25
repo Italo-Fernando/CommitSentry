@@ -1,0 +1,6 @@
+# config.yml
+# Parâmetros para o algoritmo SZZ
+szz:
+  name: 'ra' # 'b' para Blame/B-SZZ, 'ra' para RA-SZZ, etc.
+  fix_regex: '(?i)fix(es|ed)?|bug(s)?|issue(s)?|error(s)?'
+
