@@ -1,0 +1,7 @@
+pandas
+pyarrow
+scikit-learn
+pydriller
+python-dotenv
+pathlib
+pyYAML

@@ -1,0 +1,29 @@
+.
+├── config.py
+├── data
+│   ├── interim
+│   ├── processed
+│   └── raw
+├── Dockerfile
+├── estrutura.txt
+├── LICENSE
+├── models
+├── notebooks
+├── README.md
+├── requirements.txt
+├── src
+│   ├── data_extraction
+│   │   └── get_commits.py
+│   ├── external
+│   │   └── pyszz_v2
+|    |
+│   ├── features
+│   │   └── build_features.py
+│   ├── __init__.py
+│   ├── main.py
+│   └── models
+│       └── train_model.py
+├── tests
+└── venv    └── WHEEL
+
+1252 directories, 12732 files
