@@ -5,3 +5,5 @@ pydriller
 python-dotenv
 pathlib
 pyYAML
+pathlib
+fastparquet
