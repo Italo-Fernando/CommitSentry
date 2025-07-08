@@ -1,12 +1,14 @@
 # src/data_extraction/get_commits.py
+import subprocess
 import pandas as pd
 from pydriller import Repository
+import re
 import json
 import os
 import sys
 from pathlib import Path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from config import LUCENE_REPO_PATH, SZZ_OUTPUT_FILE, PROCESSED_DATA_DIR
+from config import LUCENE_REPO_PATH, SZZ_INPUT_FILE, PROCESSED_DATA_DIR, CONFIG_FILE_PATH, SUBMODULES_DIR, PYSZZ_SCRIPT_PATH, SUBMODULE_VENV_PATH
 
 
 def extract_commit_data():
@@ -44,7 +46,7 @@ def extract_commit_data():
                 'hash': commit.hash,
                 'msg': commit.msg,
                 'author': commit.author.name,
-                'date': commit.author_date,
+                #'date': commit.author_date,
                 'lines_added': commit.insertions,
                 'lines_deleted': commit.deletions,
                 'files_modified': len(commit.modified_files),
@@ -71,12 +73,10 @@ def extract_commit_data():
 
 def identify_regular_expressions(dataframe):
     """Identifica padrões de commits relacionados a bugfixes e agrupa os demais."""
-    import re
+
     from collections import defaultdict
 
-    pattern = {
-        'bugfix': r'\b(fix|bug|issue|error|fixed a bug|fixed)\b',
-    }
+    pattern = r'\b(fix|bug|issue|error|fixed a bug|fixed|fixing)\b'
 
     bugfix_commits = []
     repo_name = str(LUCENE_REPO_PATH).split(os.sep)[-1]
@@ -90,8 +90,21 @@ def identify_regular_expressions(dataframe):
             })
 
     # Salva apenas os commits de bugfix no JSON
-    with open(SZZ_OUTPUT_FILE, 'w') as f:
-        x = json.dump(bugfix_commits, f, indent=4)
-    print(f"Bugfix commits saved to {SZZ_OUTPUT_FILE}")
+    with open(SZZ_INPUT_FILE, 'w') as f:
+        json.dump(bugfix_commits, f, indent=4)
+    print(f"Bugfix commits saved to {SZZ_INPUT_FILE}")
 
-    return x
+    return bugfix_commits
+
+
+def ssz_label(json_file):
+    """Executa o SZZ para rotular os commits de bugfix."""
+    #comando_requerimentos = [sys.executable,'-m','pip','install','-r', str(SUBMODULES_DIR)]
+    #subprocess.run(comando_requerimentos, check=True)
+    comando_label = [str(SUBMODULE_VENV_PATH), str(PYSZZ_SCRIPT_PATH),
+                      '--input', str(SZZ_INPUT_FILE),str(CONFIG_FILE_PATH),str(LUCENE_REPO_PATH)]
+    resultado = subprocess.run(comando_label, check=True)    
+    print("resultado do comando:", resultado)
+
+    
+    return resultado

@@ -1,0 +1,1 @@
+Aqui é onde você deverá clonar o repositório desejado, no escopo do projeto esse será o Apache Lucene.
