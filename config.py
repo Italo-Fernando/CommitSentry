@@ -18,6 +18,8 @@ LUCENE_REPO_PATH = RAW_DATA_DIR / 'lucene'
 PYSZZ_MODULE_PATH = ROOT_DIR / 'src' / 'external' / 'pyszz_v2'
 PYSZZ_SCRIPT_PATH = PYSZZ_MODULE_PATH / 'main.py'
 SZZ_INPUT_FILE = INTERIM_DATA_DIR / 'szz_output.json'
+SZZ_BUGS_FILE = INTERIM_DATA_DIR / 'szz_bugs.json'
+PARQUET_FILE = PROCESSED_DATA_DIR / 'commits_labeled.parquet'
 
 
 # Caminho para salvar modelos treinados
