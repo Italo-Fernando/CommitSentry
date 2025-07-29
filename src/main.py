@@ -1,6 +1,7 @@
 # src/main.py
-from data_extraction.get_commits import extract_commit_data, identify_regular_expressions,ssz_label
-from config import REQUIREMENTS_FILE_PATH,SZZ_INPUT_FILE
+from data_extraction.get_commits import extract_commit_data, identify_regular_expressions
+from features.build_features import create_commit_table
+from config import REQUIREMENTS_FILE_PATH,SZZ_INPUT_FILE, SZZ_BUGS_FILE, PARQUET_FILE
 import subprocess
 
 
@@ -22,21 +23,25 @@ def main():
             identify_regular_expressions(commit_data)
             print("Expressões regulares identificadas com sucesso.")
 
-            #Rodar o SZZ para rotular os commits de bugfix
-            szz_result = ssz_label()
         else:
             print("Arquivo 'commits_labeled.parquet' já existe. Pulando a extração de dados dos commits.")
             commit_data = pd.read_parquet('data/processed/commits_labeled.parquet')
             print("Dados dos commits extraídos com sucesso.")
             """Criando o json de bugfixes"""
-            identify_regular_expressions(commit_data)
-            print("Expressões regulares identificadas com sucesso.")
+            if not pd.io.common.file_exists(SZZ_INPUT_FILE):
+                print("Arquivo 'szz_output.json' não encontrado. Executando o SZZ para rotular os commits de bugfix.")
+                identify_regular_expressions(commit_data)
+                print("Expressões regulares identificadas com sucesso.")
+            else:
+                pass
             # Rodar o SZZ para rotular os commits de bugfix
-            szz_result = ssz_label(SZZ_INPUT_FILE)
+            create_commit_table(PARQUET_FILE, 'data/processed/commits_labeled.csv', SZZ_BUGS_FILE)
+            print("Tabela de commits criada com sucesso.")
     except Exception as e:
         print(f"Ocorreu um erro durante a execução do pipeline: {e}")
         return
 
 if __name__ == "__main__":
-    main()
+    #main()
+    create_commit_table(PARQUET_FILE, '../data/processed/commits_labeled.csv', SZZ_BUGS_FILE)
     print("--- PIPELINE FINALIZADO ---")

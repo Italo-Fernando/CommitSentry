@@ -97,14 +97,3 @@ def identify_regular_expressions(dataframe):
     return bugfix_commits
 
 
-def ssz_label(json_file):
-    """Executa o SZZ para rotular os commits de bugfix."""
-    #comando_requerimentos = [sys.executable,'-m','pip','install','-r', str(SUBMODULES_DIR)]
-    #subprocess.run(comando_requerimentos, check=True)
-    comando_label = [str(SUBMODULE_VENV_PATH), str(PYSZZ_SCRIPT_PATH),
-                      '--input', str(SZZ_INPUT_FILE),str(CONFIG_FILE_PATH),str(LUCENE_REPO_PATH)]
-    resultado = subprocess.run(comando_label, check=True)    
-    print("resultado do comando:", resultado)
-
-    
-    return resultado
