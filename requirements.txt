@@ -8,3 +8,13 @@ pyYAML
 pathlib
 fastparquet
 radon
+numpy
+matplotlib
+seaborn
+scipy
+scikit-image
+ipykernel
+plotly
+nbformat
+kaleido
+imbalanced-learn

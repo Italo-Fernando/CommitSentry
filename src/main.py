@@ -43,5 +43,6 @@ def main():
 
 if __name__ == "__main__":
     #main()
-    create_commit_table(PARQUET_FILE, '../data/processed/commits_labeled.csv', SZZ_BUGS_FILE)
+    create_commit_table(PARQUET_FILE, '../data/processed/dataset_labeled.parquet', SZZ_BUGS_FILE)
+    #extract_commit_data()
     print("--- PIPELINE FINALIZADO ---")

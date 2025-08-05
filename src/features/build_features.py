@@ -1,43 +1,58 @@
-import subprocess
-import pandas as pd
-from pydriller import Repository
-import re
 import json
-import os
-import sys
+import pandas as pd
 from pathlib import Path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from config import LUCENE_REPO_PATH, SZZ_INPUT_FILE, PROCESSED_DATA_DIR, CONFIG_FILE_PATH, SUBMODULES_DIR, PYSZZ_SCRIPT_PATH, SUBMODULE_VENV_PATH, SZZ_BUGS_FILE
+from typing import Set
 
+def bugs_to_list(bugs_file: str) -> Set[str]:
+    """
+    Load a JSON file of bugs and return a set of inducing_commit_hash strings.
+    Handles both single-string and list-of-strings cases.
+    """
+    with open(bugs_file, 'r', encoding='utf-8') as f:
+        bugs_data = json.load(f)
 
-def bugs_to_list(bugs_file):
-    """ Converts a JSON file containing bugs to a list using 'inducing_commit_hash' as reference."""
-    with open(bugs_file, 'r') as file:
-        bugs_data = json.load(file)
-    
-    bugs_list = []
+    bug_hashes: Set[str] = set()
     for bug in bugs_data:
-        inducing_commit_hash = bug.get('inducing_commit_hash')
-        if inducing_commit_hash:
-            bugs_list.append(inducing_commit_hash)
-    
-    return bugs_list
+        ref = bug.get('inducing_commit_hash')
+        if not ref:
+            continue
+        if isinstance(ref, list):
+            for h in ref:
+                if isinstance(h, str):
+                    bug_hashes.add(h)
+        elif isinstance(ref, str):
+            bug_hashes.add(ref)
+        else:
+            continue
+    return bug_hashes
 
-def create_bug_feature(file_parquet, bugs_file):
-    """ Creates a feature indicating whether a commit is a bug fix or not."""
-    bugs_list = bugs_to_list(bugs_file)
-    
+def create_bug_feature(file_parquet: str, bugs_file: str) -> pd.DataFrame:
+    """
+    Read commits from a Parquet file, add a boolean 'is_bug' column,
+    and return the enriched DataFrame.
+    """
+    bug_hashes = bugs_to_list(bugs_file)
     df = pd.read_parquet(file_parquet)
-    df['is_bug'] = df['hash'].apply(lambda x: 1 if x in bugs_list else 0)
-    
+    df['is_bug'] = df['hash'].isin(bug_hashes)  
     return df
 
-def transform_parquet_to_csv(df, output_csv):
-    """Salva o DataFrame em um arquivo CSV"""
-    df.to_csv(output_csv, index=False)
-    print(f"Arquivo convertido para CSV: {output_csv}")
+def save_dataframe(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save DataFrame to disk. Chooses format based on file extension.
+    """
+    ext = Path(output_path).suffix.lower()
+    if ext == '.csv':
+        df.to_csv(output_path, index=False)
+    elif ext in ('.parquet', '.pq'):
+        df.to_parquet(output_path, index=False)
+    else:
+        raise ValueError(f"Unsupported extension: {ext}")
+    print(f"Saved DataFrame to {output_path}")
 
-
-def create_commit_table(file_parquet, output_csv, bugs_file):
+def create_commit_table(
+    file_parquet: str,
+    output_path: str,
+    bugs_file: str
+) -> None:
     df = create_bug_feature(file_parquet, bugs_file)
-    transform_parquet_to_csv(df, output_csv)
+    save_dataframe(df, output_path)
